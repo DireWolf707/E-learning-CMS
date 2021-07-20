@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block title %}SignUp{% endblock title %}
+{% block content %}
+<div class="container-fluid mt-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-4">
+      <div class="card">
+        <div class="card-body">
+          <h4 class="text-center text-uppercase mb-3">
+            <b>
+              SignUp
+            </b>
+          </h4>
+          <form method="POST" >
+            {% csrf_token %}
+            {{form|crispy }}
+            <div class="d-grid gap-2 mt-2">
+            <button class="btn btn-primary" type="submit">Sign Up</button>
+            </div>
+             <p class="text-center mt-3">
+              Already Have an Account ? <a href="# "><b>Sign In</b></a>
+            </p> 
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
