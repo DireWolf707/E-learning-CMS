@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load course %}
+{% block title %}{{course.title}}{% endblock title %}
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-4">
+            <h2 class="ms-2 text-dark">Modules</h2>
+            <hr>
+            {% if module %}
+            <div class="list-group">
+                {% for m in course.modules.all %}
+                <a href='{% url "students:student_course_detail_module" course_id=course.id module_id=m.id %}'
+                    class="list-group-item list-group-item-action {% if m == module %}active{% endif %} text-break"
+                    id='{{m.order|add:1}}'>{{m.order|add:1}}.&nbsp{{m.title}}</a>
+                {% endfor %}
+            </div>{% else %}
+            &nbsp&nbspNo Modules Yet..
+            {% endif %}
+        </div>
+        <div class="col-8">
+            <div class="card m-2 ">
+                <div class="card-body">
+                    <h5 class="card-title" style="color: black">Description</h5>
+                    {{module.description}}
+                </div>
+            </div>
+            <div class="accordion accordion-flush" id="myAccordionFlush">
+                {% for content in module.contents.all %}
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="flush-heading{{content.order}}">
+                        <button class="accordion-button collapsed text-break" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#flush-collapse{{content.order}}" aria-expanded="false"
+                            aria-controls="flush-collapse{{content.order}}">
+                            {{content.order|add:1}}.&nbsp{{content.item.title}} ({{content.item|model_name}})
+                        </button>
+                    </h2>
+                    <div id="flush-collapse{{content.order}}" class="accordion-collapse collapse"
+                        aria-labelledby="flush-heading{{content.order}}" data-bs-parent="#myAccordionFlush">
+                        <div class="accordion-body">{{content.item.render}}</div>
+                    </div>
+                </div>
+                {% empty %}
+                &nbsp&nbsp&nbspNo Content Yet...
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

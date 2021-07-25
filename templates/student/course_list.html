@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<br>
+
+<div class="container">
+    <div class="row">
+        <div class="col-3">
+        <h3 style="color:black">Subjects</h3>
+            <hr>
+            <div class="list-group">
+                <a href="{% url 'students:course_list' %}"
+                    class="list-group-item list-group-item-action {% if not subject %}active{% endif %}">All <span
+                        class="badge bg-success rounded-pill">{{all_courses}}</span></a>
+                {% for s in subjects %}
+                <a href="{% url 'students:course_list_subject' s.slug %}"
+                    class="list-group-item list-group-item-action {% if s == subject %}active{% endif %}">{{s.title}}
+                    <span class="badge bg-success rounded-pill">{{s.total_courses}}</span></a>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="col-9">
+            <h3 style="color:black">Courses&nbsp{% if subject %}({{subject}}){% else %}(All){% endif %}</h3>
+            <hr>
+            {% include "student/list.html" with courses=courses %}
+        </div>
+    </div>
+</div>
+{% endblock content %}

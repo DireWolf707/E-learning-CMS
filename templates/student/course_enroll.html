@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class='container'>
+<br>
+<div class="container mt-4">
+    <div class="p-5 mb-4 text-white bg-dark rounded-3">
+        <div class="container-fluid py-5">
+            <h1 class="display-5 fw-bold">{{course.title}}</h1>
+            <p class="col-md-8 fs-4 text-break">
+                {{course.description}}</p>
+            <p class="col-md-8 fs-5 text-break">
+                Created By-{{course.instructor.get_full_name}} </p>
+            <p class="col-md-6 fs-6 text-break"></p>
+            Contains&nbsp{{course.modules.count}}&nbspModules&nbsp&nbsp
+            </p>
+            <form method='POST'>
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary">Enroll</button>
+            </form>
+        </div>
+    </div>
+</div>
+<hr>
+</div>
+{% endblock content %}

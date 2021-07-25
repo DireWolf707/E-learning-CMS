@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block title %}My Courses{% endblock title %}
+
+{% block content %}
+<br>
+
+<div class="container justify-content-center">
+<h3 class='text-dark'>My Created Courses</h3>
+<hr>
+  <div class="row g-2 ms-3">
+    {% for course in courses %}
+    <div class="col-4">
+      <div id='{{course.id}}' class="card">
+        <div class="card-body ">
+          <h5 class="card-title text-truncate">{{course.title}}</h5>
+          <h6 class="card-subtitle mb-2 text-muted">{{course.created}}</h6>
+          <p class="card-text text-truncate">{{course.description}}</p>
+          <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+            <div class="btn-group">
+              <button type="button" class="btn btn-danger dropdown-toggle" data-bs-toggle="dropdown"
+                aria-expanded="false">
+                Action
+              </button>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="{% url 'manage_courses:manage_course_edit' course.id %}">Edit</a>
+                </li>
+                <li><a class="dropdown-item" href="{% url 'manage_courses:manage_module' course.id %}">Manage Modules</a>
+                </li>
+                {% if course.modules.exists %}
+                <li><a class="dropdown-item"
+                    href="{% url 'manage_courses:manage_content_list' course.modules.first.id %}">Manage Contents</a>
+                </li>
+                {% endif %}
+                <li><a class="dropdown-item" id='toggle-modal' data-title='{{course.title}}' data-id='{{course.id}}'>
+                    Delete
+                  </a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+  aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="staticBackdropLabel">Delete</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body text-wrap text-break">
+        ...
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+
+        <form id='course-delete' data-id='...'>
+          <button type="submit" class="btn btn-primary">Delete</button>
+        </form>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock content %}
+
+{% block domready %}
+const myModal = new bootstrap.Modal(document.getElementById('staticBackdrop'));
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim(); if (cookie.substring(0, name.length +
+                1) === (name + '=')) { cookieValue = decodeURIComponent(cookie.substring(name.length + 1)); break; }
+        }
+    } return cookieValue;
+}
+$('body #toggle-modal').click((e) => {
+    $('div.modal-body').text('Are You Sure You wanna Delete ' + $(e.target).data("title") + '?');
+    $('form#course-delete').attr('data-id', $(e.target).data("id"));
+    myModal.show();
+})
+$('form#course-delete').submit((e) => {
+    e.preventDefault()
+    const csrftoken = getCookie('csrftoken');
+    let id = $(e.target).attr('data-id');
+    $.post(
+        {
+            url: `http://127.0.0.1:8000/my_courses/${id}/delete/`,
+            headers: { 'X-CSRFToken': csrftoken },
+            success: () => {
+                $(`div[id=${id}]`).remove();
+            },
+            error: (err) => {
+                console.log(err)
+            }
+        }
+    )
+    myModal.hide();
+})
+{% endblock domready %}

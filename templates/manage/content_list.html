@@ -1,0 +1,203 @@
+{% extends 'base.html' %}
+{% load course %}
+{% block title %}Content{% endblock title %}
+{% block content %}
+{% with module.course as course %}
+
+<div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1" id="offcanvasWithBothOptions"
+  aria-labelledby="offcanvasWithBothOptionsLabel">
+  <div class="offcanvas-header bg-info">
+    <h5 class="offcanvas-title text-light ms-4" id="offcanvasWithBothOptionsLabel">Modules</h5>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body ">
+    <div class="list-group" id='module-list'>
+      {% for m in course.modules.all %}
+      <a href="{% url 'manage_courses:manage_content_list' m.id %}" data-module-id='{{m.id}}'
+        class="list-group-item list-group-item-light {% if m == module %}active{% endif %} text-break"><span class='module-order '>{{m.order|add:1}}</span>.&nbsp{{m.title}}</a>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="editContent" tabindex="-1" aria-labelledby="editContent" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title text-truncate" id="exampleModalLabel">...</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        ...
+      </div>
+    </div>
+  </div>
+</div>
+
+<main>
+  <div class='container my-4 '>
+    <div class="row ">
+      <div class="col-3">
+        <p class='text-center fs-5'>
+          <a class="text-decoration-none" data-bs-toggle="offcanvas" href="#offcanvasWithBothOptions" role="button"
+            aria-controls="offcanvasExample">
+            Modules
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+              class="bi bi-box-arrow-right" viewBox="0 0 16 16">
+              <path fill-rule="evenodd"
+                d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0v2z">
+              </path>
+              <path fill-rule="evenodd"
+                d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z">
+              </path>
+            </svg>
+          </a>
+        </p>
+        <h3 class='text-center text-dark'>Add New Content</h3>
+        <hr>
+        <div class="list-group list-group-flush" id='content-add'>
+          <a role="button" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#editContent"
+            data-content-type="text">+ Add Text</a>
+          <a role="button" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#editContent"
+            data-content-type="image">+ Add Image</a>
+          <a role="button" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#editContent"
+            data-content-type="file">+ Add File</a>
+          <a role="button" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#editContent"
+            data-content-type="video">+ Add Video</a>
+        </div>
+      </div>
+
+      <div class="col-9">
+        <h2 class='text-dark'>Contents</h2>
+        <hr>
+        <div class="list-group" id='content-list'>
+          {% if module %}
+          {% for content in module.contents.all %}
+          {% with content.item|model_name as content_type %}
+          <a role="button" class="list-group-item list-group-item-action" data-bs-toggle="modal"
+            data-bs-target="#editContent" data-object-id="{{content.object_id}}" data-content-id="{{content.id}}" data-content-type="{{content_type}}"
+            data-title='{{content.item.title}} ({{content_type}})'>
+            <div class="d-flex w-100 justify-content-between">
+              <h5 class="mb-1 text-truncate">
+              <span class='content-order'>{{content.order|add:1}}</span>.&nbsp{{content.item.title}} ({{content_type}})
+              </h5>
+              <small><p class="mb-1 text-end">created-{{content.item.created}}</p></small>
+            </div>
+            <small><p class="mb-1 text-end">updated-{{content.item.updated}}</p></small>
+          </a>
+          {% endwith %}
+          {% empty %}
+          No Content Yet...
+          {% endfor %}
+          {% else %}
+          No Modules Yet...
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+
+
+
+{% endwith %}
+
+{% endblock content %}
+
+
+{% block domready %}
+
+const baseURL = 'http://127.0.0.1:8000/my_courses/';
+const moduleID = {{ module.id }};
+
+
+const success_fnx = (res,headerText,deleteUrl) => {
+    $('.modal-body').html(res)
+    $('.modal-title').text(headerText)
+    if (deleteUrl) {
+        set_delete_link(deleteUrl)
+    }
+}
+
+const set_delete_link = (deleteUrl) => {
+    $('.modal-body #delete-form').attr('action', deleteUrl)
+}
+
+$('div#content-list a').click(function () {
+    let itemID = $(this).attr('data-object-id')
+    let contentID = $(this).attr('data-content-id')
+    let contentType = $(this).attr('data-content-type')
+    let headerText = `Editing ${$(this).attr('data-title')}`
+    //urls
+    let editUrl = baseURL + `${moduleID}/module/content/${contentType}/${itemID}/`
+    let deleteUrl = baseURL + `content/${contentID}/delete/`
+    $.ajax({
+        type: "GET",
+        url: editUrl,
+        success: (res) => { success_fnx(res,headerText,deleteUrl) },
+        error: function (request, status, error) {
+            console.log("ajax call went wrong:" + request.responseText);
+        }
+    });
+});
+
+$('div#content-add a').click(function () {
+    let contentType=$(this).attr('data-content-type')
+    let addUrl = baseURL + `${moduleID}/module/content/${contentType}/create/`
+    let headerText = $(this).text()
+    $.ajax({
+        type: "GET",
+        url: addUrl,
+        success: (res) => { success_fnx(res,headerText) },
+        error: function (request, status, error) {
+            console.log("ajax call went wrong:" + request.responseText);
+        }
+    });
+});
+
+$('div#content-list').sortable({
+  cursor: "grab",
+  containment :'document',
+  stop:()=>{
+    contentOrder = {};
+    $('div#content-list').children().each((idx,ele)=>{
+      $(ele).find('.content-order').text(idx+1)
+      contentOrder[$(ele).attr('data-content-id')]=idx
+    })
+    $.ajax({
+      type:'POST',
+      url:'{% url 'manage_courses:manage_content_order' %}',
+      content_type:'application/json',
+      dataType:'json',
+      data:JSON.stringify(contentOrder),
+      success: (res) => console.log(res),
+      error: function (request, status, error) {
+            console.log("ajax call went wrong:" + request.responseText)
+      }
+    })
+  }
+})
+$('div#module-list').sortable({
+  cursor: "grab",
+  containment :'document',
+  stop:()=>{
+    moduleOrder = {};
+    $('div#module-list').children().each((idx,ele)=>{
+      $(ele).find('.module-order').text(idx+1)
+      moduleOrder[$(ele).attr('data-module-id')]=idx
+    })
+    $.ajax({
+      type:'POST',
+      url:'{% url 'manage_courses:manage_module_order' %}',
+      content_type:'application/json',
+      dataType:'json',
+      data:JSON.stringify(moduleOrder),
+      success: (res) => console.log(res),
+      error: function (request, status, error) {
+            console.log("ajax call went wrong:" + request.responseText)
+      }
+    })
+  }
+})
+{% endblock domready %}

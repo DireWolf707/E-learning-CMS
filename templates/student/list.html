@@ -1,0 +1,21 @@
+
+    <div class="row">
+        {% for course in courses %}
+        <div class="col-4">
+            <div class="card text-white bg-dark mb-3">
+                <div class="card-header border-success">{{course.title}}</div>
+                <div class="card-body text-dark bg-white">
+                    <p class="card-text text-truncated">{{course.description}}</p>
+                    <p class='card-text text-truncated fst-italic fw-light'>Contains&nbsp{{course.total_modules}}&nbspmodules</p>
+                </div>
+                <div class="card-footer border-success text-dark bg-white text-end">
+                    By - {{course.instructor.get_full_name}}
+                    <a class="btn btn-primary" 
+                    href="{% url 'students:course_detail' course.slug %}"
+
+                        role="button">Select</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
