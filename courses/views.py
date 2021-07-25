@@ -95,7 +95,7 @@ class ManageContentCreateUpdateView(LoginRequiredMixin, View):
             if not self.item_id:
                 Content.objects.create(module=self.module, item=item)
             return redirect('manage_courses:manage_content_list', self.module.id)
-        return render(self.request, 'manage/content_form.html', {'form': form, 'item': self.item})
+        return render(self.request, 'manage/content_form.html', {'form': form, 'item': self.item, 'module_id': self.module.id, 'model_name': self.kwargs['model_name']})
 
     def get_model(self, model_name):
         if model_name in ('text', 'video', 'image', 'file',):
