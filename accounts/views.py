@@ -12,4 +12,4 @@ class SignUpView(CreateView):
     def form_valid(self, form):
         self.object = form.save()
         login(self.request, self.object)
-        return redirect('courses:home')
+        return redirect('students:course_list')
