@@ -95,7 +95,7 @@ $('form#course-delete').submit((e) => {
     let id = $(e.target).attr('data-id');
     $.post(
         {
-            url: `http://127.0.0.1:8000/my_courses/${id}/delete/`,
+            url: `https://e-cms.herokuapp.com/my_courses/${id}/delete/`,
             headers: { 'X-CSRFToken': csrftoken },
             success: () => {
                 $(`div[id=${id}]`).remove();
